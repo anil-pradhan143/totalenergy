@@ -1,6 +1,6 @@
 
 
-> Total Energy is just a samll Energy calculation module. Which will take some input from user and save the data to Firebase database with User name and time also show the charts of his input data (Assignment)
+> Total Energy is just a samll Energy calculation module. Which will take some input from user and save the data to Firebase database with User name and timestamp with current year also show the charts of his input data (Assignment)
 
 ## How to run (Steps)
 
