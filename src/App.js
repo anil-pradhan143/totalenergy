@@ -3,6 +3,9 @@ import './App.css';
 import Charts from './ChartApp';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import firebase from './FirebaseConfig';
+import { BeatLoader } from 'react-spinners';
+
 
 
 function App() {
@@ -14,6 +17,9 @@ function App() {
   const [totalEnergy, setTotalEnergy] = useState('')
   const [chartData, setChartData] = useState([])
   const [showchart, setShowChart] = useState(false)
+  const [loader, setLoader] = useState(false)
+
+ 
 
   function getFloatValue(num) {
     return parseFloat(num)
@@ -29,22 +35,37 @@ function App() {
     return (parseFloat(kwTObaht) * 10); // randomly taken one value 1kWh unit will cost 10 Baht
   }
   function onSubmit(e) {
-    if(electriciy===''){toast.info("Please enter the electricity value"); return false;}
-    else if (solar===''){toast.info("Please enter the solar value"); return false;}
-    else if(gas ===''){toast.info("Please enter the gas value"); return false;}
-    else if(wind===''){toast.info("Please enter the wind value"); return false;}
+    if (electriciy === '') { toast.info("Please enter the electricity value"); return false; }
+    else if (solar === '') { toast.info("Please enter the solar value"); return false; }
+    else if (gas === '') { toast.info("Please enter the gas value"); return false; }
+    else if (wind === '') { toast.info("Please enter the wind value"); return false; }
 
+    setShowChart(true);
+    setLoader(true)
     chartData.push({ "product": "electriciy", "value": getFloatValue(electriciy) });
     chartData.push({ "product": "solar", "value": getFloatValue(solar) });
     chartData.push({ "product": "gas", "value": getFloatValue(gas) });
     chartData.push({ "product": "wind", "value": getFloatValue(wind) });
     setPercent(percent);
     calculateTotalEnergy();
-    console.log("Data are:" + JSON.stringify(chartData));
-    setShowChart(true);
-    getChart();
-  }
+    updateFirebaseData();
 
+    console.log("Data are:" + JSON.stringify(chartData));
+
+  }
+  function updateFirebaseData() {
+    firebase.database().ref('totalEnergyData/' + "2020").set({
+      chartData: chartData
+    }, function (error) {
+      if (error) {
+        toast.error("Data updation is failed");
+      } else {
+        toast.success("Data saved successfully!");
+        getChart();
+        setLoader(false);
+      }
+    });
+  }
   function getChart() {
     return (
       <Charts datapoint={chartData} percent={percent} />
@@ -54,8 +75,8 @@ function App() {
   return (
     <>
       <header>
-        <ToastContainer/>
-      
+        <ToastContainer />
+
         <div className="col-md-12 ">
           <div className="col-md-6 App" >
             <div className="col-md-8">
@@ -73,7 +94,7 @@ function App() {
                     <button onClick={(e) => onSubmit(e)}>Submit</button>
                   </div>
                 </div>
-                {!showchart &&  <h4>Please enter all the values and click on submit.</h4>}
+                {!showchart && <h4>Please enter all the values and click on submit.</h4>}
               </div>
             </div>
 
@@ -81,60 +102,77 @@ function App() {
 
           <div className="col-md-6">
             {showchart &&
-            <>
-              <div className="card col-md-8" style={{ margin: '20px 0px', borderRadius: '15px', overflow: 'hidden' }}>
-                <div className="col-md-12">
-                  <h4 style={{ textTransform: 'uppercase', fontWeight: '700', float: 'left', marginTop: '20px' }}>Portion of Energy</h4>
-                </div>
+              <>
+                {loader ?
+                  <div className="col-md-12 m-tb-10 text-center">
+                    <BeatLoader
+                      css={{display: "block",
+                        borderColor: "red",
+                        textAlign:"center",
+                        margin:"200px auto"}}
+                      sizeUnit={"px"}
+                      size={15}
+                      color={'#123abc'}
+                      loading={loader}
+                    />
+                  </div>
+                  :
+                  <>
+                    <div className="card col-md-8" style={{ margin: '20px 0px', borderRadius: '15px', overflow: 'hidden' }}>
+                      <div className="col-md-12">
+                        <h4 style={{ textTransform: 'uppercase', fontWeight: '700', float: 'left', marginTop: '20px' }}>Portion of Energy</h4>
+                      </div>
 
-                <div className="col-md-12">
-                  <div className="col-md-6">
-                    {/* <Charts datapoint={chartData} percent={percent} /> */}
-                    {getChart()}
-                  </div>
-                  <div className="col-md-6">
-                    <p style={{ marginTop: '50px' }}>Total Energy</p>
-                    <h4 style={{ color: '#850aad' }}>{totalEnergy} KW</h4>
-                  </div>
-              
-                </div>
-                <div className="col-md-12">
-                  <div className="col-md-6">
-                    <h4 style={{ color: 'rgb(103, 183, 220)' }}>Electricity</h4>
-                    <p >{electriciy} kWh</p>
-                    <p style={{ color: '#850aad' }}>{calculteUnit(electriciy)} Baht</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h4 style={{ color: 'rgb(103, 148, 220)' }}>Solar</h4>
-                    <p>{solar} kWh</p>
-                    <p style={{ color: '#850aad' }}>{calculteUnit(solar)} Baht</p>
-                  </div>
-                </div>
-                <div className="col-md-12">
-                  <div className="col-md-6">
-                    <h4 style={{ color: 'rgb(103, 113, 220)' }}>Gas</h4>
-                    <p>{gas} kWh</p>
-                    <p style={{ color: '#850aad' }}>{calculteUnit(gas)} Baht</p>
-                  </div>
-                  <div className="col-md-6">
+                      <div className="col-md-12">
+                        <div className="col-md-6">
 
-                    <h4 style={{ color: 'rgb(128, 103, 220)' }}>Wind</h4>
-                    <p>{wind} kWh</p>
-                    <p style={{ color: '#850aad' }}>{calculteUnit(wind)} Baht</p>
-                  </div>
-                </div>
-              </div>
-              <div className="card col-md-8">
-              <p><strong>Chart :</strong> Used amChats for this, due to  watermark that appearing little bit in right</p>
-              <p><strong>Total Energy =</strong> Simple addition of Electricity,Solar,Gas,Wind</p>
-              <p><strong>Amount (Baht) : </strong>used one simple logic 1 kWh costs 10 Baht</p>
-              </div>
+                          {getChart()}
+                        </div>
+                        <div className="col-md-6">
+                          <p style={{ marginTop: '50px' }}>Total Energy</p>
+                          <h4 style={{ color: '#850aad' }}>{totalEnergy} KW</h4>
+                        </div>
+
+                      </div>
+                      <div className="col-md-12">
+                        <div className="col-md-6">
+                          <h4 style={{ color: 'rgb(103, 183, 220)' }}>Electricity</h4>
+                          <p >{electriciy} kWh</p>
+                          <p style={{ color: '#850aad' }}>{calculteUnit(electriciy)} Baht</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h4 style={{ color: 'rgb(103, 148, 220)' }}>Solar</h4>
+                          <p>{solar} kWh</p>
+                          <p style={{ color: '#850aad' }}>{calculteUnit(solar)} Baht</p>
+                        </div>
+                      </div>
+                      <div className="col-md-12">
+                        <div className="col-md-6">
+                          <h4 style={{ color: 'rgb(103, 113, 220)' }}>Gas</h4>
+                          <p>{gas} kWh</p>
+                          <p style={{ color: '#850aad' }}>{calculteUnit(gas)} Baht</p>
+                        </div>
+                        <div className="col-md-6">
+
+                          <h4 style={{ color: 'rgb(128, 103, 220)' }}>Wind</h4>
+                          <p>{wind} kWh</p>
+                          <p style={{ color: '#850aad' }}>{calculteUnit(wind)} Baht</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="card col-md-8">
+                      <p><strong>Chart :</strong> Used amChats for this, due to  watermark that appearing little bit in right</p>
+                      <p><strong>Total Energy =</strong> Simple addition of Electricity,Solar,Gas,Wind</p>
+                      <p><strong>Amount (Baht) : </strong>used one simple logic 1 kWh costs 10 Baht</p>
+                    </div>
+                  </>
+                }
               </>
             }
           </div>
-            
+
         </div>
-        
+
       </header>
     </>
   );

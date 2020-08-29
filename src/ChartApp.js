@@ -7,9 +7,7 @@ import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 am4core.useTheme(am4themes_animated);
 
 class ChartApp extends Component {
-    constructor(props) {
-        super(props);
-    }
+
     componentDidMount() {
         var chart = am4core.create("chartdiv", am4charts.PieChart);
 
