@@ -17,7 +17,8 @@ class ChartApp extends Component {
         // Add and configure Series
         var pieSeries = chart.series.push(new am4charts.PieSeries());
         pieSeries.dataFields.value = "value";
-        pieSeries.dataFields.hidden = "hidden";
+        pieSeries.dataFields.category = "entity";
+
         // Let's cut a hole in our Pie chart the size of 40% the radius
         chart.innerRadius = am4core.percent(40);
         var label = chart.seriesContainer.createChild(am4core.Label);

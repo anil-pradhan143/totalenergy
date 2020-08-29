@@ -21,10 +21,10 @@ function App() {
   const [loader, setLoader] = useState(false)
   var todayDate = new Date();
   var tod = moment(todayDate).format('MM/DD/YYYY HH:mm:ss');
-  var currYear= moment(todayDate).format('YYYY');
+  var currYear = moment(todayDate).format('YYYY');
 
   function getFloatValue(num) {
-    return parseFloat(num)
+    return parseFloat(num);
   }
   function calculateTotalEnergy() {
     var total = 0;
@@ -34,10 +34,14 @@ function App() {
     setTotalEnergy(total);
   }
   function calculteUnit(kwTObaht) {
-    return (parseFloat(kwTObaht) * 10); // randomly taken one value 1kWh unit will cost 10 Baht
+    var cal = (parseFloat(kwTObaht) * 10); // randomly taken one value 1kWh unit will cost 10 Baht
+    return formatPrice(cal)
+  }
+  function formatPrice(price) {
+    return new Intl.NumberFormat('en-IN').format(Math.ceil(price));
   }
   function onSubmit(e) {
-    if(uname === '') { toast.info("Please enter your name"); return false; }
+    if (uname === '') { toast.info("Please enter your name"); return false; }
     else if (electriciy === '') { toast.info("Please enter the electricity value"); return false; }
     else if (solar === '') { toast.info("Please enter the solar value"); return false; }
     else if (gas === '') { toast.info("Please enter the gas value"); return false; }
@@ -45,7 +49,7 @@ function App() {
 
     setShowChart(true);
     setLoader(true)
-    chartData.splice(0,chartData.length);
+    chartData.splice(0, chartData.length);
     chartData.push({ "entity": "electriciy", "value": getFloatValue(electriciy) });
     chartData.push({ "entity": "solar", "value": getFloatValue(solar) });
     chartData.push({ "entity": "gas", "value": getFloatValue(gas) });
@@ -58,9 +62,9 @@ function App() {
 
   }
   function updateFirebaseData() {
-    firebase.database().ref(currYear+'/' + uname).set({
+    firebase.database().ref(currYear + '/' + uname).set({
       chartData: chartData,
-      date:tod
+      date: tod
     }, function (error) {
       if (error) {
         toast.error("Data updation is failed");
@@ -86,7 +90,7 @@ function App() {
           <div className="col-md-6 App" >
             <div className="col-md-8">
               <div className="row">
-                <div className="card col-md-12" style={{ backgroundColor: '#2276ccbd', margin: '20px 0px' }}>
+                <div className="card col-md-12 bg-blue">
                   <div className="col-md-12"> <h3>Input Fields</h3></div>
                   <div className="col-md-12">
                     <input type="text" pattern="" placeholder="Your Name" style={{ width: '100%' }} value={uname} onChange={event => setUname(event.target.value)}></input>
@@ -112,10 +116,12 @@ function App() {
                 {loader ?
                   <div className="col-md-12 m-tb-10 text-center">
                     <BeatLoader
-                      css={{display: "block",
+                      css={{
+                        display: "block",
                         borderColor: "red",
-                        textAlign:"center",
-                        margin:"200px auto"}}
+                        textAlign: "center",
+                        margin: "200px auto"
+                      }}
                       sizeUnit={"px"}
                       size={15}
                       color={'#123abc'}
@@ -124,9 +130,9 @@ function App() {
                   </div>
                   :
                   <>
-                    <div className="card col-md-8" style={{ margin: '20px 0px', borderRadius: '15px', overflow: 'hidden' }}>
+                    <div className="card col-md-8 chart">
                       <div className="col-md-12">
-                        <h4 style={{ textTransform: 'uppercase', fontWeight: '700', float: 'left', marginTop: '20px' }}>Portion of Energy</h4>
+                        <h4 className="portion">Portion of Energy</h4>
                       </div>
 
                       <div className="col-md-12">
@@ -136,33 +142,54 @@ function App() {
                         </div>
                         <div className="col-md-6">
                           <p style={{ marginTop: '50px' }}>Total Energy</p>
-                          <h4 style={{ color: '#850aad' }}>{totalEnergy} KW</h4>
+                          <h4 style={{ color: '#850aad' }}>{formatPrice(totalEnergy)} KW</h4>
                         </div>
 
                       </div>
-                      <div className="col-md-12">
-                        <div className="col-md-6">
-                          <h4 style={{ color: 'rgb(103, 183, 220)' }}>Electricity</h4>
-                          <p >{electriciy} kWh</p>
-                          <p style={{ color: '#850aad' }}>{calculteUnit(electriciy)} Baht</p>
-                        </div>
-                        <div className="col-md-6">
-                          <h4 style={{ color: 'rgb(103, 148, 220)' }}>Solar</h4>
-                          <p>{solar} kWh</p>
-                          <p style={{ color: '#850aad' }}>{calculteUnit(solar)} Baht</p>
-                        </div>
-                      </div>
-                      <div className="col-md-12">
-                        <div className="col-md-6">
-                          <h4 style={{ color: 'rgb(103, 113, 220)' }}>Gas</h4>
-                          <p>{gas} kWh</p>
-                          <p style={{ color: '#850aad' }}>{calculteUnit(gas)} Baht</p>
-                        </div>
+                      <div className="col-md-12 p-0">
                         <div className="col-md-6">
 
-                          <h4 style={{ color: 'rgb(128, 103, 220)' }}>Wind</h4>
-                          <p>{wind} kWh</p>
-                          <p style={{ color: '#850aad' }}>{calculteUnit(wind)} Baht</p>
+                          <div className="col-md-2 p-0">
+                            <i className='fas fa-lightbulb m-tb-10 elec_icon'></i>
+                          </div>
+                          <div className="col-md-10 p-0">
+                            <h4 > Electricity</h4>
+                            <p >{electriciy} kWh</p>
+                            <p style={{ color: '#850aad', fontWeight: '600' }}>{calculteUnit(electriciy)} Baht</p>
+                          </div>
+
+                        </div>
+                        <div className="col-md-6">
+                          <div className="col-md-2 p-0">
+                            <i className='fas fa-sun m-tb-10 solar_icon'></i>
+                          </div>
+                          <div className="col-md-10 p-0">
+                            <h4>  Solar</h4>
+                            <p>{solar} kWh</p>
+                            <p style={{ color: '#850aad', fontWeight: '600' }}>{calculteUnit(solar)} Baht</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-12 p-0">
+                        <div className="col-md-6">
+                          <div className="col-md-2 p-0">
+                            <i className='fas fa-gas-pump m-tb-10 gas_icon'></i>
+                          </div>
+                          <div className="col-md-10 p-0">
+                            <h4> Gas</h4>
+                            <p>{gas} kWh</p>
+                            <p style={{ color: '#850aad', fontWeight: '600' }}>{calculteUnit(gas)} Baht</p>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="col-md-2 p-0">
+                            <i className='fas fa-wind m-tb-10 wind_icon'></i>
+                          </div>
+                          <div className="col-md-10 p-0">
+                            <h4> Wind</h4>
+                            <p>{wind} kWh</p>
+                            <p style={{ color: '#850aad', fontWeight: '600' }}>{calculteUnit(wind)} Baht</p>
+                          </div>
                         </div>
                       </div>
                     </div>

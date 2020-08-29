@@ -4,6 +4,13 @@ body{
 .App {
   text-align: center;
 }
+.p-0{
+  padding:0
+}
+.m-tb-10{
+  margin-top: 13px;
+  margin-bottom: 10px;
+}
 .card{
   background-color: #FFFFFF;
   margin-bottom: 15px;
@@ -17,10 +24,20 @@ body{
   -o-transition: all 1s ease-in-out;
   transition: all 1s ease-in-out;
 }
+.portion{
+  text-transform: uppercase;
+   font-weight: 700; float: left; margin-top: 20px;
+}
+.bg-blue{
+  background-color: #2276ccbd;margin: 20px 0px ;
+}
 .card:hover{
   -webkit-box-shadow: 0px 12px 8px -3px rgba(112,112,112,0.34);
   -moz-box-shadow: 0px 12px 8px -3px rgba(112,112,112,0.34);
   box-shadow: 0px 12px 8px -3px rgba(112,112,112,0.34);
+}
+.chart{
+  margin:20px 0px; border-radius: 15px; overflow: hidden;
 }
 input{
   width: 100%;
@@ -52,7 +69,10 @@ button{
   color: #ffffff;
   font-weight: 700;
 }
-
+.elec_icon{ color: rgb(103, 183, 220)}
+.solar_icon{ color: rgb(103, 148, 220)}
+.gas_icon{color: rgb(103, 113, 220)}
+.wind_icon{color: rgb(128, 103, 220)}
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
   color:#ffffff;
   opacity: 1; /* Firefox */
