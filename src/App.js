@@ -5,10 +5,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import firebase from './FirebaseConfig';
 import { BeatLoader } from 'react-spinners';
-
+import * as moment from "moment";
 
 
 function App() {
+  const [uname, setUname] = useState('')
   const [electriciy, setElectriciy] = useState('')
   const [solar, setSolar] = useState('')
   const [gas, setGas] = useState('')
@@ -18,8 +19,9 @@ function App() {
   const [chartData, setChartData] = useState([])
   const [showchart, setShowChart] = useState(false)
   const [loader, setLoader] = useState(false)
-
- 
+  var todayDate = new Date();
+  var tod = moment(todayDate).format('MM/DD/YYYY HH:mm:ss');
+  var currYear= moment(todayDate).format('YYYY');
 
   function getFloatValue(num) {
     return parseFloat(num)
@@ -35,17 +37,19 @@ function App() {
     return (parseFloat(kwTObaht) * 10); // randomly taken one value 1kWh unit will cost 10 Baht
   }
   function onSubmit(e) {
-    if (electriciy === '') { toast.info("Please enter the electricity value"); return false; }
+    if(uname === '') { toast.info("Please enter your name"); return false; }
+    else if (electriciy === '') { toast.info("Please enter the electricity value"); return false; }
     else if (solar === '') { toast.info("Please enter the solar value"); return false; }
     else if (gas === '') { toast.info("Please enter the gas value"); return false; }
     else if (wind === '') { toast.info("Please enter the wind value"); return false; }
 
     setShowChart(true);
     setLoader(true)
-    chartData.push({ "product": "electriciy", "value": getFloatValue(electriciy) });
-    chartData.push({ "product": "solar", "value": getFloatValue(solar) });
-    chartData.push({ "product": "gas", "value": getFloatValue(gas) });
-    chartData.push({ "product": "wind", "value": getFloatValue(wind) });
+    chartData.splice(0,chartData.length);
+    chartData.push({ "entity": "electriciy", "value": getFloatValue(electriciy) });
+    chartData.push({ "entity": "solar", "value": getFloatValue(solar) });
+    chartData.push({ "entity": "gas", "value": getFloatValue(gas) });
+    chartData.push({ "entity": "wind", "value": getFloatValue(wind) });
     setPercent(percent);
     calculateTotalEnergy();
     updateFirebaseData();
@@ -54,15 +58,16 @@ function App() {
 
   }
   function updateFirebaseData() {
-    firebase.database().ref('totalEnergyData/' + "2020").set({
-      chartData: chartData
+    firebase.database().ref(currYear+'/' + uname).set({
+      chartData: chartData,
+      date:tod
     }, function (error) {
       if (error) {
         toast.error("Data updation is failed");
       } else {
-        toast.success("Data saved successfully!");
         getChart();
         setLoader(false);
+        toast.success("Data saved successfully!");
       }
     });
   }
@@ -84,6 +89,7 @@ function App() {
                 <div className="card col-md-12" style={{ backgroundColor: '#2276ccbd', margin: '20px 0px' }}>
                   <div className="col-md-12"> <h3>Input Fields</h3></div>
                   <div className="col-md-12">
+                    <input type="text" pattern="" placeholder="Your Name" style={{ width: '100%' }} value={uname} onChange={event => setUname(event.target.value)}></input>
                     <input type="text" pattern="\d*\.?\d*" placeholder="Electricity" style={{ width: '100%' }} value={electriciy} onChange={event => setElectriciy((event.target.validity.valid) ? event.target.value : electriciy)}></input>
                     <input type="text" pattern="\d*\.?\d*" placeholder="Solar" value={solar} onChange={event => setSolar((event.target.validity.valid) ? event.target.value : solar)}></input>
                     <input type="text" pattern="\d*\.?\d*" placeholder="Gas" value={gas} onChange={event => setGas((event.target.validity.valid) ? event.target.value : gas)}></input>
